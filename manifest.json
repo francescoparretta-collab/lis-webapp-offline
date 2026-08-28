@@ -1,0 +1,13 @@
+{
+  "name": "LIS Riconoscimento",
+  "short_name": "LIS",
+  "description": "Riconoscimento Lingua dei Segni Italiana in tempo reale",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a14",
+  "theme_color": "#0a0a14",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
