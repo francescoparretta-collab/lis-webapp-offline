@@ -15,7 +15,7 @@ import { estendiSequenza } from './features.js';
 // >=0.75 e softmax, quindi eliminato — resta solo per le coppie ambigue)
 const SEQ_LEN_LETTERA = 8;
 const SEQ_LEN_PAROLA  = 10;
-const SOGLIA_LETTERA  = 0.75;
+const SOGLIA_LETTERA  = 0.90;
 const SOGLIA_PAROLA   = 0.90;
 const MARGINE_AMBIGUE = 0.60;
 const CONFERME_MIN    = 2;
