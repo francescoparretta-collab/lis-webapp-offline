@@ -524,14 +524,18 @@ function estraiKeypoints(handRes, faceRes, poseRes) {
 
 // ── Loop principale ─────────────────────────────────────────
 // Il video si ridisegna ad ogni frame (fluido), ma le 3 rilevazioni ML
-// (mani/viso/corpo) girano solo ogni INTERVALLO_DETECT ms: farle girare
-// a piena velocita' del refresh dello schermo (fino a 60/sec) blocca il
-// thread unico del browser sui telefoni meno potenti (rilevato su iPhone
-// 12 -- "si blocca, non fluido"). 10 rilevazioni al secondo bastano per
-// il riconoscimento e lasciano il resto dell'app reattivo.
+// (mani/viso/corpo) girano ogni INTERVALLO_DETECT ms -- ADATTIVO, non
+// fisso: si misura da solo quanto costano le 3 rilevazioni su QUESTO
+// dispositivo e si regola di conseguenza. Su un PC potente arriva vicino
+// al refresh dello schermo (piu' rilevazioni al secondo = piu' preciso,
+// piu' simile ai dati di allenamento); su un telefono debole (rilevato
+// su iPhone 12 -- "si blocca, non fluido") si allarga da solo per non
+// sovraccaricare il thread unico del browser.
 let ultimoTempo = -1;
 let ultimoDetect = 0;
-const INTERVALLO_DETECT = 100;
+let intervalloDetect = 100; // punto di partenza, si aggiusta dal primo ciclo
+const INTERVALLO_MIN = 16;  // non piu' veloce del refresh schermo (~60/sec)
+const INTERVALLO_MAX = 150; // non piu' lento di ~6-7 rilevazioni/sec
 // Ultimi risultati validi: disegnati ad OGNI frame (fluido, niente
 // scheletro che sparisce e riappare), anche nei frame in cui non gira
 // una nuova rilevazione.
@@ -555,11 +559,16 @@ function loop() {
   ctx.drawImage(workCanvas, 0, 0, overlay.width, overlay.height);
 
   let novitaRilevazione = false;
-  if (now - ultimoDetect >= INTERVALLO_DETECT) {
+  if (now - ultimoDetect >= intervalloDetect) {
     ultimoDetect = now;
+    const costoInizio = performance.now();
     ultimoHandRes = handLandmarker.detectForVideo(workCanvas, now);
     ultimoFaceRes = faceLandmarker.detectForVideo(workCanvas, now);
     ultimoPoseRes = poseLandmarker.detectForVideo(workCanvas, now);
+    const costoMs = performance.now() - costoInizio;
+    // Prossimo intervallo: almeno il doppio del costo appena misurato,
+    // cosi' meta' del tempo resta libero per disegno/UI/riconoscimento.
+    intervalloDetect = Math.min(INTERVALLO_MAX, Math.max(INTERVALLO_MIN, costoMs * 2));
     novitaRilevazione = true;
   }
   const handRes = ultimoHandRes, faceRes = ultimoFaceRes, poseRes = ultimoPoseRes;
