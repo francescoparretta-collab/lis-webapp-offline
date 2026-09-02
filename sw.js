@@ -1,7 +1,7 @@
 // Service worker OFFLINE — mette in cache TUTTO al primo avvio (pagina,
 // librerie MediaPipe/TensorFlow.js, modelli), cosi' l'app funziona anche
 // senza connessione dopo la prima apertura.
-const CACHE = 'lis-offline-v16';
+const CACHE = 'lis-offline-v17';
 
 const FILE_ASSETS = [
   './', './index.html', './app.js', './features.js', './manifest.json',
